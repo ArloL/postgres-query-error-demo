@@ -11,7 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
+@Testcontainers(disabledWithoutDocker = true)
 public class DemoTest {
 
 	private static final String NEXT_SYNC_EVENT_QUERY = """
@@ -54,7 +56,8 @@ public class DemoTest {
 		}
 	}
 
-	private void insertAndRemoveMessages(Connection connection) throws SQLException {
+	private void insertAndRemoveMessages(Connection connection)
+			throws SQLException {
 		int total = 128_000;
 		int step = 3;
 
