@@ -76,7 +76,8 @@ public class DemoTest {
 						}
 						if (count > 1) {
 							System.out.println(
-									"Got " + count + " results after approx. "
+									"Got " + count
+											+ " results instead of 1 after approx. "
 											+ i + " entries"
 							);
 							return;
