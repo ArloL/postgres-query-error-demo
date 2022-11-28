@@ -3,6 +3,7 @@ package com.example.demo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
+import org.testcontainers.ext.ScriptUtils;
+import org.testcontainers.jdbc.ContainerLessJdbcDelegate;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers(disabledWithoutDocker = true)
@@ -53,6 +56,19 @@ public class DemoTest {
 			try (Connection connection = database.createConnection("")) {
 				insertAndRemoveMessages(connection);
 			}
+		}
+	}
+
+	@Test
+	void loadTestQueueCompose() throws Exception {
+		String url = "jdbc:postgresql://localhost:55612/test";
+		try (Connection connection = DriverManager
+				.getConnection(url, "test", "test")) {
+			ScriptUtils.runInitScript(
+					new ContainerLessJdbcDelegate(connection),
+					"schema.sql"
+			);
+			insertAndRemoveMessages(connection);
 		}
 	}
 
