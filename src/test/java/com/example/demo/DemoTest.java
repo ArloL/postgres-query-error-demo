@@ -33,7 +33,7 @@ public class DemoTest {
 	@Test
 	void loadTestQueue() throws Exception {
 		try (PostgreSQLContainer<?> database = new PostgreSQLContainer<>(
-				"postgres:15.1-alpine"
+				"postgres:15.1-bullseye"
 		)) {
 			database.withUrlParam("preparedStatementCacheQueries", "0")
 					.withUrlParam("preparedStatementCacheSizeMiB", "0")
