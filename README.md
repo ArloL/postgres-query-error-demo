@@ -15,14 +15,16 @@ CREATE TABLE "queue" (
 	"id" BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
 	"action" TEXT NOT NULL
 );
+```
 
 Repeat these queries for a while:
+
 ```
 INSERT INTO queue (action) VALUES ('action1');
 INSERT INTO queue (action) VALUES ('action2');
 INSERT INTO queue (action) VALUES ('action3');
 
-# repeat three times
+-- repeat three times
 DELETE FROM queue
 WHERE
 	id IN (
@@ -36,4 +38,10 @@ WHERE
 RETURNING *;
 ```
 
-If you check the number of results from the delete query it will not return one result but three. That should not be the case due to the LIMIT statement in the query.
+Expected behaviour:
+
+The delete query returns one entry from the queue.
+
+Actual behaviour:
+
+After a while three elements will be returned. This should not be the case due to the LIMIT statement in the query.
