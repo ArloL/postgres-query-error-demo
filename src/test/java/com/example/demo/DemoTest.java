@@ -1,6 +1,6 @@
 package com.example.demo;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -90,7 +90,7 @@ public class DemoTest {
 		int step = 3;
 
 		for (int i = 0; i < total; i += step) {
-			System.out.println(i);
+			connection.setAutoCommit(true);
 
 			try (PreparedStatement insertStatement = connection
 					.prepareStatement(
@@ -102,6 +102,8 @@ public class DemoTest {
 				}
 			}
 
+			connection.setAutoCommit(false);
+
 			try (PreparedStatement statement = connection
 					.prepareStatement(NEXT_SYNC_EVENT_QUERY)) {
 				for (int j = 0; j < step; j++) {
@@ -110,11 +112,22 @@ public class DemoTest {
 						while (resultSet.next()) {
 							count++;
 						}
-						assertEquals(1, count);
+						if (count > 1) {
+							System.out.println(
+									"Got " + count + " results after approx. "
+											+ i + " entries"
+							);
+							connection.rollback();
+							return;
+						}
+					} finally {
+						connection.commit();
 					}
 				}
 			}
 		}
+
+		assertTrue(false, "Never got too many query results");
 	}
 
 }
