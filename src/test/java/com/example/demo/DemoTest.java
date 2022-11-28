@@ -61,9 +61,11 @@ public class DemoTest {
 
 	@Test
 	void loadTestQueueCompose() throws Exception {
-		String url = "jdbc:postgresql://localhost:55612/test";
-		try (Connection connection = DriverManager
-				.getConnection(url, "test", "test")) {
+		try (Connection connection = DriverManager.getConnection(
+				"jdbc:postgresql://localhost:55612/test",
+				"test",
+				"test"
+		)) {
 			ScriptUtils.runInitScript(
 					new ContainerLessJdbcDelegate(connection),
 					"schema.sql"
