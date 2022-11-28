@@ -4,18 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
-@Testcontainers(disabledWithoutDocker = true)
 public class DemoTest {
 
 	private static final String NEXT_SYNC_EVENT_QUERY = """
@@ -34,32 +28,6 @@ public class DemoTest {
 
 	@Test
 	void loadTestQueue() throws Exception {
-		try (PostgreSQLContainer<?> database = new PostgreSQLContainer<>(
-				"postgres:15.1-bullseye"
-		)) {
-			database.withUrlParam("preparedStatementCacheQueries", "0")
-					.withUrlParam("preparedStatementCacheSizeMiB", "0")
-					.withUrlParam("prepareThreshold", "0")
-					.waitingFor(
-							new WaitAllStrategy()
-									.withStrategy(Wait.forListeningPort())
-									.withStrategy(
-											Wait.forLogMessage(
-													".*database system is ready to accept connections.*\\s",
-													2
-											)
-									)
-					)
-					.start();
-			try (Connection connection = database.createConnection("")) {
-				recreateTable(connection);
-				insertAndRemoveMessages(connection);
-			}
-		}
-	}
-
-	@Test
-	void loadTestQueueCompose() throws Exception {
 		try (Connection connection = DriverManager.getConnection(
 				"jdbc:postgresql://localhost:55612/test",
 				"test",
@@ -90,24 +58,18 @@ public class DemoTest {
 		int step = 3;
 
 		for (int i = 0; i < total; i += step) {
-			connection.setAutoCommit(true);
-
-			try (PreparedStatement insertStatement = connection
-					.prepareStatement(
-							"INSERT INTO queue (action) VALUES (?)"
-					)) {
+			try (Statement insertStatement = connection.createStatement()) {
 				for (int j = 0; j < step; j++) {
-					insertStatement.setString(1, "action" + j);
-					insertStatement.execute();
+					insertStatement.execute(
+							"INSERT INTO queue (action) VALUES ('action')"
+					);
 				}
 			}
 
-			connection.setAutoCommit(false);
-
-			try (PreparedStatement statement = connection
-					.prepareStatement(NEXT_SYNC_EVENT_QUERY)) {
+			try (Statement statement = connection.createStatement()) {
 				for (int j = 0; j < step; j++) {
-					try (ResultSet resultSet = statement.executeQuery()) {
+					try (ResultSet resultSet = statement
+							.executeQuery(NEXT_SYNC_EVENT_QUERY)) {
 						int count = 0;
 						while (resultSet.next()) {
 							count++;
@@ -117,11 +79,8 @@ public class DemoTest {
 									"Got " + count + " results after approx. "
 											+ i + " entries"
 							);
-							connection.rollback();
 							return;
 						}
-					} finally {
-						connection.commit();
 					}
 				}
 			}
