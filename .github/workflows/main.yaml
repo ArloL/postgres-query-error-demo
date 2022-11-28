@@ -81,11 +81,13 @@ jobs:
     - name: Build with Maven
       run: |
         set -o xtrace
+        docker compose up --detach
         ./mvnw \
           --batch-mode \
           -Dsha1="${GITHUB_SHA}" \
           -Drevision="${REVISION}" \
           verify
+        docker compose down
     - name: Move artifacts
       run: |
         mkdir target/artifacts
@@ -111,11 +113,13 @@ jobs:
     - name: Build with Maven
       run: |
         set -o xtrace
+        docker compose up --detach
         ./mvnw \
           --batch-mode \
           -Dsha1="${GITHUB_SHA}" \
           -Drevision="${REVISION}" \
           verify
+        docker compose down
     - name: Move artifacts
       run: |
         mkdir target/artifacts
