@@ -7,9 +7,10 @@ only return one row but it returns three.
 
 `./mvnw test`
 
-# Explanation
+# What's the problem?
 
 Given this table:
+
 ```
 CREATE TABLE "queue" (
 	"id" BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -17,12 +18,12 @@ CREATE TABLE "queue" (
 );
 ```
 
-Repeat these queries for a while:
+When you repeat these queries up to 100.000 times:
 
 ```
-INSERT INTO queue (action) VALUES ('action1');
-INSERT INTO queue (action) VALUES ('action2');
-INSERT INTO queue (action) VALUES ('action3');
+INSERT INTO queue (action) VALUES ('a');
+INSERT INTO queue (action) VALUES ('a');
+INSERT INTO queue (action) VALUES ('a');
 
 -- repeat three times
 DELETE FROM queue
@@ -38,10 +39,9 @@ WHERE
 RETURNING *;
 ```
 
-Expected behaviour:
+Then at some point the delete statement will return three
+elements instead of the expected one.
 
-The delete query returns one entry from the queue.
-
-Actual behaviour:
-
-After a while three elements will be returned. This should not be the case due to the LIMIT statement in the query.
+See
+[/src/test/java/com/example/demo/DemoTest.java](https://github.com/ArloL/postgres-query-error-demo/blob/main/src/test/java/com/example/demo/DemoTest.java)
+for code that reproduces this behaviour pretty reliable.
