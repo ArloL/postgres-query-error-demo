@@ -52,7 +52,7 @@ public class DemoTest {
 					)
 					.start();
 			try (Connection connection = database.createConnection("")) {
-				createTableIfNotExists(connection);
+				recreateTable(connection);
 				insertAndRemoveMessages(connection);
 			}
 		}
@@ -65,16 +65,18 @@ public class DemoTest {
 				"test",
 				"test"
 		)) {
-			createTableIfNotExists(connection);
+			recreateTable(connection);
 			insertAndRemoveMessages(connection);
 		}
 	}
 
-	private void createTableIfNotExists(Connection connection)
-			throws SQLException {
+	private void recreateTable(Connection connection) throws SQLException {
 		try (Statement statement = connection.createStatement()) {
 			statement.executeUpdate("""
-					CREATE TABLE IF NOT EXISTS "queue" (
+					DROP TABLE IF EXISTS "queue"
+					""");
+			statement.executeUpdate("""
+					CREATE TABLE "queue" (
 						"id" BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
 						"action" TEXT NOT NULL
 					);
