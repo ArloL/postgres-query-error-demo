@@ -58,7 +58,7 @@ public class DemoTest {
 
 	private void insertAndRemoveMessages(Connection connection)
 			throws SQLException {
-		int total = 128_000;
+		int total = 256_000;
 		int step = 3;
 
 		for (int i = 0; i < total; i += step) {
