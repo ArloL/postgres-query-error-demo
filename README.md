@@ -5,7 +5,13 @@ only return one row but it returns three.
 
 # Quickstart
 
+The java version:
+
 `./mvnw test`
+
+or the shell version:
+
+`./reproduction-with-psql.sh`
 
 # What's the problem?
 
