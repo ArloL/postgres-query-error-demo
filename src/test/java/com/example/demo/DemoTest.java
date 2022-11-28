@@ -52,6 +52,7 @@ public class DemoTest {
 					)
 					.start();
 			try (Connection connection = database.createConnection("")) {
+				createTableIfNotExists(connection);
 				insertAndRemoveMessages(connection);
 			}
 		}
