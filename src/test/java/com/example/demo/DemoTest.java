@@ -1,6 +1,6 @@
 package com.example.demo;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -86,7 +86,7 @@ public class DemoTest {
 			}
 		}
 
-		assertTrue(false, "Never got too many query results");
+		fail("Never got too many query results");
 	}
 
 }
