@@ -7,13 +7,12 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
-import org.testcontainers.ext.ScriptUtils;
-import org.testcontainers.jdbc.ContainerLessJdbcDelegate;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers(disabledWithoutDocker = true)
@@ -51,7 +50,6 @@ public class DemoTest {
 											)
 									)
 					)
-					.withInitScript("schema.sql")
 					.start();
 			try (Connection connection = database.createConnection("")) {
 				insertAndRemoveMessages(connection);
@@ -66,11 +64,20 @@ public class DemoTest {
 				"test",
 				"test"
 		)) {
-			ScriptUtils.runInitScript(
-					new ContainerLessJdbcDelegate(connection),
-					"schema.sql"
-			);
+			createTableIfNotExists(connection);
 			insertAndRemoveMessages(connection);
+		}
+	}
+
+	private void createTableIfNotExists(Connection connection)
+			throws SQLException {
+		try (Statement statement = connection.createStatement()) {
+			statement.executeUpdate("""
+					CREATE TABLE IF NOT EXISTS "queue" (
+						"id" BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+						"action" TEXT NOT NULL
+					);
+					""");
 		}
 	}
 
